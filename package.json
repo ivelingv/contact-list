@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/ivelingv/contact-list/issues"
   },
-  "homepage": "https://github.com/ivelingv/contact-list#readme"
+  "homepage": "https://github.com/ivelingv/contact-list#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
