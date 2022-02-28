@@ -1,12 +1,17 @@
 const express = require('express');
 const contactRouter = require('./routes/contact');
+const userRouter = require('./routes/user');
+
 
 const PORT_NUMBER = process.env.PORT | 3000;
-
 const app = express();
+
+// Connection to database
+require('./database/mongoose');;
 
 app.use(express.json());
 app.use('/contacts', contactRouter);
+app.use('/users', userRouter);
 
 app.get('/help', (req, res) => {
 
