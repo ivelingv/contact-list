@@ -3,9 +3,10 @@ const Contact = require('../database/models/contact')
 
 const UpdateKeys = ['firstName', 'lastName', 'company', 'birthDate', 'address', 'phones', 'emails'];
 
-module.exports.list = async ({ query: filter }, res) => {
+module.exports.list = async ({ query: filter, user }, res) => {
     try
     {
+        filter.owner = user._id;
         const contacts = await Contact.find(filter);
         res.status(200).send(contacts);
     }
@@ -20,10 +21,10 @@ module.exports.list = async ({ query: filter }, res) => {
     }
 }
 
-module.exports.details = async ( { params: { id }}, res) => {
+module.exports.details = async ( { params: { id }, user}, res) => {
     try
     {
-        const contact = await Contact.findById(id);
+        const contact = await Contact.findOne({ _id: id, owner: user._id });
         res.status(200).send(contact);
     }
     catch(error)
@@ -37,14 +38,16 @@ module.exports.details = async ( { params: { id }}, res) => {
     }
 }
 
-module.exports.create = async ({ body }, res) => {
+module.exports.create = async ({ body, user }, res) => {
     try
     {
         var contact = new Contact({
             contactId: new mongoose.Types.ObjectId(),
             ...body
         });
-        
+
+        contact.owner = user._id;
+
         await contact.save();
         res.status(200).send(contact);
     }
@@ -59,7 +62,7 @@ module.exports.create = async ({ body }, res) => {
     }
 }
 
-module.exports.update = async ({ body, params }, res) => {
+module.exports.update = async ({ body, params, user }, res) => {
     try
     {
         const validKeys = Object.keys(body).every(key => {
@@ -70,7 +73,7 @@ module.exports.update = async ({ body, params }, res) => {
             throw new Error('Invalid update parameters');
         }
 
-        let contact = await Contact.findOne({ _id: params.id });
+        let contact = await Contact.findOne({ _id: params.id, owner: user._id });
         if (!contact) {
             throw new Error(`Could not find contact with id ${params.id}`);
         }
@@ -93,10 +96,16 @@ module.exports.update = async ({ body, params }, res) => {
     }
 }
 
-module.exports.delete = async ({ params }, res) => {
+module.exports.delete = async ({ params, user }, res) => {
     try
     {
-        const contact = await Contact.findOneAndDelete({ _id: params.id }, { returnDocument: true });
+        const contact = await Contact.findOneAndDelete({ 
+            _id: params.id, 
+            owner: user._id 
+        }, { 
+            returnDocument: true 
+        });
+
         if (!contact) {
             throw new Error(`Could not find contact with id ${params.id}`);
         }
