@@ -3,7 +3,7 @@ const contactRouter = require('./routes/contact');
 const userRouter = require('./routes/user');
 
 
-const PORT_NUMBER = process.env.PORT | 3000;
+const PORT_NUMBER = process.env.PORT_NUMBER || 3000;
 const app = express();
 
 // Connection to database
