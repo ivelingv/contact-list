@@ -1,4 +1,5 @@
 const { default: mongoose } = require('mongoose');
+const sharp = require('sharp');
 const Contact = require('../database/models/contact')
 
 const UpdateKeys = ['firstName', 'lastName', 'company', 'birthDate', 'address', 'phones', 'emails'];
@@ -120,5 +121,51 @@ module.exports.delete = async ({ params, user }, res) => {
             error: error.message,
             date: new Date()
         })
+    }
+}
+
+module.exports.createAvatar = async ({ params, user, file }, res) => {
+    try {
+        const contact = await Contact.findOne({ _id: params.id, owner: user._id });
+        if (!contact) {
+            throw new Error(`Could not find contact with id ${params.id}`);
+        }
+
+        const image = await sharp(file.buffer)
+            .resize({width: 250, height: 250})
+            .png()
+            .toBuffer();
+
+        contact.avatar = image;
+        await contact.save();
+
+        res.status(201).send();
+    }
+    catch(error) {
+        console.log(error.message);
+
+        res.status(400).send({
+            error: error.message,
+            date: new Date()
+        })
+    }
+}
+
+module.exports.getAvatar = async ({ params, user }, res) => {
+    try {
+
+       const contactAvatar = await Contact.findOne({ _id: params.id, owner: user._id }, 'avatar');
+
+        res.set('Content-Type', 'image/jpg')
+            .status(200)
+          .send(contactAvatar.avatar);
+    }
+    catch (error) {
+        console.log(error.message);
+
+        res.status(400).send({
+        error: error.message,
+            date: new Date()
+        });
     }
 }
