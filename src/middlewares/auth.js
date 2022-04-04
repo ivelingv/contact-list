@@ -3,7 +3,6 @@ const User = require('../database/models/user');
 const Authorization = 'Authorization';
 const Schema = 'Bearer';
 
-
 module.exports = async (req, res, next) => {
 
     try
