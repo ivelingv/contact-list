@@ -151,10 +151,10 @@ module.exports.createAvatar = async ({ params, user, file }, res) => {
     }
 }
 
-module.exports.getAvatar = async ({ params, user }, res) => {
+module.exports.getAvatar = async ({ params }, res) => {
     try {
 
-       const contactAvatar = await Contact.findOne({ _id: params.id, owner: user._id }, 'avatar');
+       const contactAvatar = await Contact.findOne({ _id: params.id }, 'avatar');
 
         res.set('Content-Type', 'image/jpg')
             .status(200)
